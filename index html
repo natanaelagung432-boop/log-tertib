@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Catatan Ketertiban Siswa</title>
+  <!-- Styling Sederhana Modern -->
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: #f4f6f9; color: #333; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    h2, h3 { color: #2c3e50; margin-bottom: 15px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+    button { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; }
+    button:hover { background-color: #2980b9; }
+    button.btn-danger { background-color: #e74c3c; }
+    button.btn-danger:hover { background-color: #c0392b; }
+    .btn-sm { width: auto; padding: 5px 10px; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
+    th { background-color: #f8f9fa; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    .badge-violation { background-color: #fadbd8; color: #78281f; }
+    .badge-achievement { background-color: #d4efdf; color: #145a32; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .point-box { background: #34495e; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- ==================== 1. TAMPILAN LOGIN ==================== -->
+    <div id="section-login" class="card">
+      <h2>Login Ketertiban Siswa</h2>
+      <form id="form-login">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="nama@sekolah.sch.id" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="Password" required>
+        </div>
+        <button type="submit">Masuk</button>
+      </form>
+    </div>
+
+    <!-- ==================== HEADER SETELAH LOGIN ==================== -->
+    <div id="user-header" class="header-bar hidden">
+      <div>
+        <h3 id="user-display-name">Selamat Datang</h3>
+        <span id="user-display-role" style="font-size: 12px; color: #7f8c8d;">Role: -</span>
+      </div>
+      <button id="btn-logout" class="btn-sm btn-danger">Keluar (Logout)</button>
+    </div>
+
+    <!-- ==================== 2. DASHBOARD ADMIN / GURU BK ==================== -->
+    <div id="section-admin" class="hidden">
+      
+      <!-- Card: Tambah Log Ketertiban -->
+      <div class="card">
+        <h3>+ Input Catatan / Log Siswa</h3>
+        <form id="form-add-log">
+          <div class="form-group">
+            <label>Pilih Siswa</label>
+            <select id="log-student-id" required>
+              <option value="">-- Pilih Siswa --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Jenis Catatan</label>
+            <select id="log-type" required>
+              <option value="VIOLATION">Pelanggaran (Kurangi Poin)</option>
+              <option value="ACHIEVEMENT">Prestasi (Tambah Poin)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Kategori (misal: Keterlambatan, Kerapian, Lomba)</label>
+            <input type="text" id="log-category" placeholder="Contoh: Keterlambatan" required>
+          </div>
+          <div class="form-group">
+            <label>Poin (Gunakan angka positif/negatif, misal: -5 atau +10)</label>
+            <input type="number" id="log-points" placeholder="-5" required>
+          </div>
+          <div class="form-group">
+            <label>Deskripsi / Keterangan</label>
+            <textarea id="log-description" rows="2" placeholder="Detail kejadian..."></textarea>
+          </div>
+          <button type="submit">Simpan Catatan</button>
+        </form>
+      </div>
+
+      <!-- Card: Registrasi Akun Siswa Baru (Admin Only) -->
+      <div class="card">
+        <h3>+ Buat Akun Siswa Baru</h3>
+        <form id="form-create-student">
+          <div class="form-group">
+            <label>ID Siswa / NISN</label>
+            <input type="text" id="new-student-id" placeholder="SISWA-001" required>
+          </div>
+          <div class="form-group">
+            <label>Nama Lengkap</label>
+            <input type="text" id="new-student-name" placeholder="Nama Siswa" required>
+          </div>
+          <div class="form-group">
+            <label>Email Siswa</label>
+            <input type="email" id="new-student-email" placeholder="siswa@sekolah.sch.id" required>
+          </div>
+          <div class="form-group">
+            <label>Password Akun</label>
+            <input type="password" id="new-student-password" placeholder="Password min 6 karakter" required>
+          </div>
+          <button type="submit" style="background-color: #2ecc71;">Buat Akun Siswa</button>
+        </form>
+      </div>
+
+      <!-- Card: Daftar Seluruh Log -->
+      <div class="card">
+        <h3>Riwayat Seluruh Catatan Ketertiban</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Siswa</th>
+              <th>Kategori & Detail</th>
+              <th>Poin</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="table-admin-logs">
+            <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ==================== 3. DASHBOARD SISWA ==================== -->
+    <div id="section-student" class="hidden">
+      
+      <!-- Box Akumulasi Poin -->
+      <div class="point-box">
+        <h4>Total Akumulasi Poin Anda</h4>
+        <h1 id="student-total-points" style="font-size: 48px; margin-top: 10px;">0</h1>
+      </div>
+
+      <!-- Tabel Log Pribadi -->
+      <div class="card">
+        <h3>Riwayat Catatan Ketertiban Anda</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Kategori</th>
+              <th>Keterangan</th>
+              <th>Poin</th>
+            </tr>
+          </thead>
+          <tbody id="table-student-logs">
+            <tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ==================== SCRIPT FIREBASE INTEGRASI ==================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, runTransaction, query, where, orderBy, Timestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // 1. ISI KONFIGURASI FIREBASE ANDA DI SINI
+    const firebaseConfig = {
+      apiKey: "PASTE_API_KEY_ANDA_DI_SINI",
+      authDomain: "PROYEK_ANDA.firebaseapp.com",
+      projectId: "PROYEK_ANDA",
+      storageBucket: "PROYEK_ANDA.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    // Inisialisasi Firebase Utama
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Inisialisasi App Sekunder (mencegah relogin saat Admin membuat akun siswa baru)
+    const secondaryApp = initializeApp(firebaseConfig, "Secondary");
+    const secondaryAuth = getAuth(secondaryApp);
+
+    // Dynamic UI Elements
+    const secLogin = document.getElementById("section-login");
+    const secAdmin = document.getElementById("section-admin");
+    const secStudent = document.getElementById("section-student");
+    const userHeader = document.getElementById("user-header");
+
+    // --- A. AUTHENTICATION & NAVIGASI ROLE ---
+    document.getElementById("form-login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const pass = document.getElementById("login-password").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (err) {
+        alert("Login Gagal: " + err.message);
+      }
+    });
+
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      signOut(auth);
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        secLogin.classList.add("hidden");
+        userHeader.classList.remove("hidden");
+
+        // Ambil data Role dari koleksi `users`
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          document.getElementById("user-display-name").innerText = userData.name || user.email;
+          document.getElementById("user-display-role").innerText = `Role: ${userData.role.toUpperCase()}`;
+
+          if (userData.role === "admin" || userData.role === "bk") {
+            secAdmin.classList.remove("hidden");
+            secStudent.classList.add("hidden");
+            loadAdminDashboard();
+          } else if (userData.role === "student") {
+            secStudent.classList.remove("hidden");
+            secAdmin.classList.add("hidden");
+            loadStudentDashboard(userData.studentId);
+          }
+        }
+      } else {
+        // Tampilan Logout
+        secLogin.classList.remove("hidden");
+        secAdmin.classList.add("hidden");
+        secStudent.classList.add("hidden");
+        userHeader.classList.add("hidden");
+      }
+    });
+
+    // --- B. LOGIKA DASHBOARD ADMIN / GURU BK ---
+    async function loadAdminDashboard() {
+      loadStudentDropdown();
+      loadAllLogsAdmin();
+    }
+
+    async function loadStudentDropdown() {
+      const select = document.getElementById("log-student-id");
+      select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+      const querySnapshot = await getDocs(collection(db, "students"));
+      querySnapshot.forEach((d) => {
+        const s = d.data();
+        select.innerHTML += `<option value="${d.id}">${s.name} (${d.id}) - Poin: ${s.totalPoints || 0}</option>`;
+      });
+    }
+
+    // Input Log Baru + Akumulasi Poin Serta-merta (Transaction)
+    document.getElementById("form-add-log").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const studentId = document.getElementById("log-student-id").value;
+      const type = document.getElementById("log-type").value;
+      const category = document.getElementById("log-category").value;
+      const points = parseInt(document.getElementById("log-points").value);
+      const description = document.getElementById("log-description").value;
+
+      try {
+        await runTransaction(db, async (transaction) => {
+          const studentRef = doc(db, "students", studentId);
+          const studentDoc = await transaction.get(studentRef);
+
+          if (!studentDoc.exists()) throw "Siswa tidak ditemukan!";
+
+          const currentPoints = studentDoc.data().totalPoints || 0;
+          const newTotal = currentPoints + points;
+
+          // 1. Tambah Log
+          const newLogRef = doc(collection(db, "logs"));
+          transaction.set(newLogRef, {
+            studentId, type, category, points, description,
+            studentName: studentDoc.data().name,
+            createdAt: Timestamp.now()
+          });
+
+          // 2. Update Akumulasi
+          transaction.update(studentRef, { totalPoints: newTotal });
+        });
+
+        alert("Catatan berhasil ditambahkan!");
+        document.getElementById("form-add-log").reset();
+        loadAdminDashboard();
+      } catch (err) {
+        alert("Gagal menambahkan log: " + err);
+      }
+    });
+
+    // Load Seluruh Log untuk Admin
+    async function loadAllLogsAdmin() {
+      const tbody = document.getElementById("table-admin-logs");
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
+      
+      const q = query(collection(db, "logs"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      
+      tbody.innerHTML = "";
+      if (snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada catatan.</td></tr>';
+        return;
+      }
+
+      snapshot.forEach((logDoc) => {
+        const log = logDoc.data();
+        const dateStr = log.createdAt ? new Date(log.createdAt.toDate()).toLocaleDateString('id-ID') : '-';
+        const badgeClass = log.type === "VIOLATION" ? "badge-violation" : "badge-achievement";
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${dateStr}</td>
+            <td><b>${log.studentName || log.studentId}</b></td>
+            <td><span class="badge ${badgeClass}">${log.category}</span><br><small>${log.description}</small></td>
+            <td><b>${log.points > 0 ? '+' + log.points : log.points}</b></td>
+            <td>
+              <button class="btn-sm btn-danger btn-delete-log" data-id="${logDoc.id}" data-studentid="${log.studentId}" data-points="${log.points}">Hapus</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      // Attach Event Hapus Log
+      document.querySelectorAll(".btn-delete-log").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const id = e.target.dataset.id;
+          const studentId = e.target.dataset.studentid;
+          const points = parseInt(e.target.dataset.points);
+          deleteLogWithTransaction(id, studentId, points);
+        });
+      });
+    }
+
+    // Hapus Log & Recalculate Poin
+    async function deleteLogWithTransaction(logId, studentId, points) {
+      if (!confirm("Apakah Anda yakin ingin menghapus catatan ini? Poin siswa akan disesuaikan otomatis.")) return;
+
+      try {
+        await runTransaction(db, async (transaction) => {
+          const studentRef = doc(db, "students", studentId);
+          const studentDoc = await transaction.get(studentRef);
+
+          if (studentDoc.exists()) {
+            const currentPoints = studentDoc.data().totalPoints || 0;
+            const newTotal = currentPoints - points; // Pengurangan pengembalian poin
+            transaction.update(studentRef, { totalPoints: newTotal });
+          }
+
+          transaction.delete(doc(db, "logs", logId));
+        });
+
+        alert("Catatan berhasil dihapus!");
+        loadAdminDashboard();
+      } catch (err) {
+        alert("Gagal menghapus log: " + err);
+      }
+    }
+
+    // Pembuatan Akun Siswa Baru oleh Admin
+    document.getElementById("form-create-student").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const studentId = document.getElementById("new-student-id").value;
+      const name = document.getElementById("new-student-name").value;
+      const email = document.getElementById("new-student-email").value;
+      const pass = document.getElementById("new-student-password").value;
+
+      try {
+        // 1. Buat akun di Auth via Secondary App
+        const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+        const uid = userCred.user.uid;
+
+        // 2. Simpan Dokumen User
+        await setDoc(doc(db, "users", uid), {
+          uid, name, email, role: "student", studentId
+        });
+
+        // 3. Simpan Dokumen Student
+        await setDoc(doc(db, "students", studentId), {
+          studentId, name, totalPoints: 0
+        });
+
+        alert("Akun siswa berhasil dibuat!");
+        document.getElementById("form-create-student").reset();
+        loadAdminDashboard();
+      } catch (err) {
+        alert("Gagal membuat akun siswa: " + err.message);
+      }
+    });
+
+    // --- C. LOGIKA DASHBOARD SISWA (READ-ONLY) ---
+    async function loadStudentDashboard(studentId) {
+      // Load Total Poin Siswa
+      const studentDoc = await getDoc(doc(db, "students", studentId));
+      if (studentDoc.exists()) {
+        document.getElementById("student-total-points").innerText = studentDoc.data().totalPoints || 0;
+      }
+
+      // Load Log Siswa Ini Saja
+      const tbody = document.getElementById("table-student-logs");
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>';
+
+      const q = query(collection(db, "logs"), where("studentId", "==", studentId));
+      const snapshot = await getDocs(q);
+
+      tbody.innerHTML = "";
+      if (snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada riwayat catatan.</td></tr>';
+        return;
+      }
+
+      snapshot.forEach((logDoc) => {
+        const log = logDoc.data();
+        const dateStr = log.createdAt ? new Date(log.createdAt.toDate()).toLocaleDateString('id-ID') : '-';
+        const badgeClass = log.type === "VIOLATION" ? "badge-violation" : "badge-achievement";
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${dateStr}</td>
+            <td><span class="badge ${badgeClass}">${log.category}</span></td>
+            <td>${log.description}</td>
+            <td><b>${log.points > 0 ? '+' + log.points : log.points}</b></td>
+          </tr>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
